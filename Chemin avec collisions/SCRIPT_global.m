@@ -40,6 +40,12 @@ point_livraison = vehicle(scenario,'ClassID',2,'Length',2,'Width',2, 'Position',
 noeud_obstacle = [2 2 0];
 vehicle(scenario,'ClassID',3,'Length',2,'Width',2, 'Position', noeud_obstacle*L, 'PlotColor', 'k');
 
+% add other vehicles
+
+passingCar1 = vehicle(scenario,'ClassID',1,'Position',[1 1 0]);
+waypoints1 = [1 1 0; 5 1 0 ; 5 4 0 ; 5 1 0 ; 1 1 0]*L;
+speed1 = 1;
+
 % Controlled vehicles
 vec_control = [car];
 
@@ -155,7 +161,7 @@ while advance(scenario) && fin == 0
         
         %verification si point de livraison atteint ; la voiture retourne au
         %point de depart
-        %if car.Position==coord_livraison || current_node == 0
+        %if car.Position==coord_livraison || current_n~ode == 0
         %    if Livraison_OK==0
         %        Livraison_OK=1;
         %        point_livraison.PlotColor = 'g';
