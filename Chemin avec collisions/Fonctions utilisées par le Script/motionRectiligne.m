@@ -1,6 +1,6 @@
 function [next_Position, next_Yaw, reached] = motionRectiligne(car,destination,v,Ts)
-    tol_dist = 1e-3;
-    tol_angle = 1e-3;
+    tol_dist = 1e-1;
+    tol_angle = 1;
     reached = 0;
     next_Position=car.Position;
     if norm(car.Position(1:2)- destination)>tol_dist
