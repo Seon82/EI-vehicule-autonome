@@ -42,9 +42,10 @@ vehicle(scenario,'ClassID',3,'Length',2,'Width',2, 'Position', noeud_obstacle*L,
 
 % add other vehicles
 
-passingCar1 = vehicle(scenario,'ClassID',1,'Position',[1 1 0]);
-waypoints1 = [1 1 0; 5 1 0 ; 5 4 0 ; 5 1 0 ; 1 1 0]*L;
-speed1 = 1;
+passingCar1 = vehicle(scenario,'ClassID',1,'Position',[1 1 0]*L);
+waypoints1 = [1 1 0; 4 1 0 ; 4 4 0 ; 4 1 0 ; 1 1 0]*L;
+speed1 = 3;
+index1 = 1;
 
 % Controlled vehicles
 vec_control = [car];
@@ -87,9 +88,6 @@ while advance(scenario) && fin == 0
             'LaneDetections',   {laneDetections});
     end
     
-   
-        
-        
     % Get object detection informations
     
     for j=1:length(vec_control) %loop with the number of controlled vehicles (with sensor)
@@ -179,6 +177,14 @@ while advance(scenario) && fin == 0
         %déplacement du véhicule
         vec_control(j).Position=next_position;
         vec_control(j).Yaw=next_Yaw;
+        
+        if passingCar1.Position==waypoints1(index1+1)
+            index1=index1+1;
+        end
+        [next_position1, next_Yaw1, ~] = motionRectiligne(passingCar1, [waypoints1(index1) waypoints1(index1+1)], speed1, Ts);
+        passingCar1.Position=next_position1;
+        passingCar1.Yaw=next_Yaw1;
+
         
     end
 
