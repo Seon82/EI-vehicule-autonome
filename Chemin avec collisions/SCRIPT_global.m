@@ -1,7 +1,7 @@
 clear all
 close all
 % Construct a drivingScenario object.
-Ts = 1; %sampling time
+Ts = 0.1; %sampling time
 scenario = drivingScenario('SampleTime', Ts);
 
 % Add all road segments
@@ -170,10 +170,7 @@ while advance(scenario) && fin == 0
     end
 
 updatePlots(scenario)
-pause(0.1)
+pause(0.01)
     
 end
-        
 
-
-    
