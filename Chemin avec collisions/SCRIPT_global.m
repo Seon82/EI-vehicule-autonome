@@ -181,9 +181,11 @@ while advance(scenario) && fin == 0
         if passingCar1.Position==waypoints1(index1+1)
             index1=index1+1;
         end
-        [next_position1, next_Yaw1, ~] = motionRectiligne(passingCar1, [waypoints1(index1) waypoints1(index1+1)], speed1, Ts);
+        [next_position1, next_Yaw1, ~] = motionRectiligne(passingCar1, getNode(waypoints1(index1),TAILLE_CARRE)*L, speed1, Ts);
         passingCar1.Position=next_position1;
         passingCar1.Yaw=next_Yaw1;
+        disp(passingCar1.Position);
+        
 
         
     end
