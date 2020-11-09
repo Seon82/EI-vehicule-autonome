@@ -37,7 +37,7 @@ point_livraison = vehicle(scenario,'ClassID',2,'Length',2,'Width',2, 'Position',
 
 % add obstacles
 % noeud_obstacle = [max((randi(TAILLE_CARRE+1)-1),1) (randi(TAILLE_CARRE+1)-1) 0];
-noeud_obstacle = [2 2 0];
+noeud_obstacle = [2 1.5 0];
 vehicle(scenario,'ClassID',3,'Length',2,'Width',2, 'Position', noeud_obstacle*L, 'PlotColor', 'k');
 
 % Controlled vehicles
@@ -81,12 +81,19 @@ while advance(scenario) && fin == 0
             'LaneDetections',   {laneDetections});
     end
     
+   
+        
+        
     % Get object detection informations
     
     for j=1:length(vec_control) %loop with the number of controlled vehicles (with sensor)
-        
         for i=1:length(objectDetections) %loop with the number of detected objects
-            [relative_dist(j,i,k),flag_coli(j,i,k)] = distancesensor(objectDetections{i});
+            if objectDetections{i}.ObjectClassID~=2 %pas une livraison
+                [relative_dist(j,i,k),flag_coli(j,i,k)] = distancesensor(objectDetections{i});
+            else
+                relative_dist(j,i,k) = inf;
+                flag_coli(j,i,k) = 0;
+            end
         end
        
         
@@ -110,6 +117,20 @@ while advance(scenario) && fin == 0
                         waypoints = [new_waypoints, waypoints(current_node-1,end)];
                     end
                 end
+            %verification si point de livraison atteint ; la voiture retourne au
+            %point de depart
+            if norm(car.Position-coord_livraison)<1e-3 | current_node == 0
+               if Livraison_OK==0
+                   Livraison_OK=1;
+                   point_livraison.PlotColor = 'g';
+                   disp('livré');
+                   coord_livraison = [0 0 0];
+                   direction = -1;
+               else
+                   disp('arrivé');
+                   fin=1;
+               end
+            end
             current_node = current_node + 1*direction;
             end
             [next_position, next_Yaw, reached] = motionRectiligne(vec_control(j), getNode(waypoints(current_node), TAILLE_CARRE)*L, speed, Ts);
@@ -153,20 +174,6 @@ while advance(scenario) && fin == 0
         vec_control(j).Position=next_position;
         vec_control(j).Yaw=next_Yaw;
         
-        %verification si point de livraison atteint ; la voiture retourne au
-        %point de depart
-        %if car.Position==coord_livraison || current_node == 0
-        %    if Livraison_OK==0
-        %        Livraison_OK=1;
-        %        point_livraison.PlotColor = 'g';
-        %        disp('livré');
-        %        coord_livraison = [0 0 0];
-        %        current_node = current_node-1;
-        %        direction = -1;
-        %    else
-        %        disp('arrivé');
-        %        fin=1;
-        %    end
     end
 
 updatePlots(scenario)
