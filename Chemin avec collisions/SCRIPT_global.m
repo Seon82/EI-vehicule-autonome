@@ -28,7 +28,7 @@ end
 
 
 %add vehicle
-car = vehicle(scenario, 'ClassID', 1, 'Position', [0 0 0]);
+%car = vehicle(scenario, 'ClassID', 1, 'Position', [0 0 0]);
 % noeud_livraison = [max((randi(TAILLE_CARRE+1)-1),1) (randi(TAILLE_CARRE+1)-1) 0];
 noeud_livraison = [2 3 0];
 coord_livraison = noeud_livraison*L;
@@ -40,32 +40,37 @@ point_livraison = vehicle(scenario,'ClassID',2,'Length',2,'Width',2, 'Position',
 noeud_obstacle = [2 1.5 0];
 vehicle(scenario,'ClassID',3,'Length',2,'Width',2, 'Position', noeud_obstacle*L, 'PlotColor', 'k');
 
-% add other vehicles
+% Add other vehicles
 
-passingCar1 = vehicle(scenario,'ClassID',1,'Position',[1 1 0]*L);
+%Initial node posisitons for cars
+CAR_NODE_POSITION = [0 0 0;
+                1 1 0;
+                1 0 0];
+
+%Initial speeds
+CAR_SPEED = [2 3 1];
+
+cars = addCars(scenario, CAR_NODE_POSITION);
+
+egoCar = cars(1);
+passingCar1 = cars(2);
+passingCar2 = cars(3);
+
 waypoints1 = [1 1 0; 4 1 0 ; 4 4 0 ; 1 4 0 ; 1 1 0]*L;
-speed1 = 3;
 index1 = 1;
 
-passingCar2 = vehicle(scenario,'ClassID',1,'Position',[1 0 0]*L);
 waypoints2 = [1 0 0; 4 0 0 ; 1 0 0]*L;
-speed2 = 1;
 index2 = 1;
 
 % Controlled vehicles
-vec_control = [car];
+vec_control = [egoCar];
+vec_control_degraded = [passingCar2];
 
 % Create all the sensors
 sensor = createSensorCamera(scenario,Ts);
 
 %Create one variable to aggregate all detections into a structure for later use
 allData = struct('Time', {}, 'ActorPoses', {}, 'ObjectDetections', {}, 'LaneDetections', {});
-k=1;
-
-
-speed = 2;
-Livraison_OK=0;
-fin=0;
 
 plot(scenario)
 
@@ -73,10 +78,16 @@ current_node = 1;
 direction = 1;
 avoiding_collision = 0;
 reached = 0;
+fin = 0;
+Livraison_OK=0;
+iteration=1;
+timeout = 0;
+
 while advance(scenario) && fin == 0
     % Sensor - local information
     % Generate the target poses of all actors relative to a certain vehicle
     poses = targetPoses(vec_control);
+    %posesDegraded = targetPosses(vec_control_degraded);
     time  = scenario.SimulationTime;
     
     % Generate detections for the sensor
@@ -95,21 +106,20 @@ while advance(scenario) && fin == 0
     
     % Get object detection informations
     
-    for j=1:length(vec_control) %loop with the number of controlled vehicles (with sensor)
-        for i=1:length(objectDetections) %loop with the number of detected objects
+    %flag_coli = detectCollision(vec_control, objectDetections, k);      
+    for j=1:length(vec_control) %Loop with the number of controlled vehicles (with sensor)
+        for i=1:length(objectDetections) %Loop with the number of detected objects
             if objectDetections{i}.ObjectClassID~=2 %pas une livraison
-                [relative_dist(j,i,k),flag_coli(j,i,k)] = distancesensor(objectDetections{i});
+                [relative_dist(j,i,iteration),flag_coli(j,i,iteration)] = distancesensor(objectDetections{i});
             else
-                relative_dist(j,i,k) = inf;
-                flag_coli(j,i,k) = 0;
+                relative_dist(j,i,iteration) = inf;
+                flag_coli(j,i,iteration) = 0;
             end
         end
-       
-        
     end
-        
     
-    k=k+1;
+    
+    iteration=iteration+1;
     
 
     for j=1:length(vec_control)
@@ -128,7 +138,7 @@ while advance(scenario) && fin == 0
                 end
             %verification si point de livraison atteint ; la voiture retourne au
             %point de depart
-            if norm(car.Position-coord_livraison)<1e-3 | current_node == 0
+            if norm(egoCar.Position-coord_livraison)<1e-3 | current_node == 0
                if Livraison_OK==0
                    Livraison_OK=1;
                    point_livraison.PlotColor = 'g';
@@ -142,33 +152,38 @@ while advance(scenario) && fin == 0
             end
             current_node = current_node + 1*direction;
             end
-            [next_position, next_Yaw, reached] = motionRectiligne(vec_control(j), getNode(waypoints(current_node), TAILLE_CARRE)*L, speed, Ts);
+            [next_position, next_Yaw, reached] = motionRectiligne(vec_control(j), getNode(waypoints(current_node), TAILLE_CARRE)*L, CAR_SPEED(1), Ts);
             
             
         else %Objets détectés dans le périmètre
             global_timout=0;
-            for i=1:length(objectDetections) %loop with the number of detected objects
-                if flag_coli(j,i,k-1)==1 %checking if collision 
+            for object=1:length(objectDetections) %loop with the number of detected objects
+                if flag_coli(j,object,iteration-1)==1 %checking if collision
                     
-                    if k<2 || flag_coli(j,i,k-2)==0 %If initial collision imminent then stop
+                    %[next_position, next_Yaw, reached, timeout, avoiding_collision] = collisionHandler(iteration,...
+                     %   flag_coli, j, object, current_node, direction, next_position, next_Yaw, reached,...
+                      %  vec_control, waypoints, TAILLE_CARRE, L, CAR_SPEED, Ts, timeout);
+                    
+                    if iteration<2 || flag_coli(j,object,iteration-2)==0 %If initial collision imminent then stop
                         
                         wait=0;
                         
                     elseif wait==10 %If collision but timeout expired then go back
                         current_node = current_node - 1*direction;
-                        [next_position, next_Yaw, reached] = motionRectiligne(vec_control(j), getNode(waypoints(current_node), TAILLE_CARRE)*L, speed, Ts);
+                        [next_position, next_Yaw, reached] = motionRectiligne(vec_control(j), getNode(waypoints(current_node), TAILLE_CARRE)*L, CAR_SPEED(1), Ts);
                         avoiding_collision=1;
                         wait=0;
                         
                     else %If timeout not expired then stop
                         wait=wait+1;
+                        wait;
                         
                     end
                         
 
                 else %Object detected but no collision                    
                     if j==1
-                        [next_position, next_Yaw, reached] = motionRectiligne(vec_control(j), getNode(waypoints(current_node), TAILLE_CARRE)*L, speed, Ts);
+                        [next_position, next_Yaw, reached] = motionRectiligne(vec_control(j), getNode(waypoints(current_node), TAILLE_CARRE)*L, CAR_SPEED(1), Ts);
                         if reached == 1
                             current_node = current_node + 1*direction;
                         end
@@ -185,19 +200,8 @@ while advance(scenario) && fin == 0
 
         %Déplacement des véhicules passifs
         
-        [next_position1, next_Yaw1, ~] = motionRectiligne(passingCar1, waypoints1(index1+1,1:2), speed1, Ts);
-        if norm(passingCar1.Position(1:2)-waypoints1(index1+1,1:2))<0.3
-            index1=mod(index1,length(waypoints1)-1)+1;
-        end
-        passingCar1.Position=next_position1;
-        passingCar1.Yaw=next_Yaw1;  
-
-        [next_position2, next_Yaw2, ~] = motionRectiligne(passingCar2, waypoints2(index2+1,1:2), speed2, Ts);
-        if norm(passingCar2.Position(1:2)-waypoints2(index2+1,1:2))<0.3
-            index2=mod(index2,length(waypoints2)-1)+1;
-        end
-        passingCar2.Position=next_position2;
-        passingCar2.Yaw=next_Yaw2;  
+        moveCar(passingCar1, waypoints1, index1, CAR_SPEED(2), Ts)
+        moveCar(passingCar2, waypoints2, index2, CAR_SPEED(3), Ts)
         
     end
 
