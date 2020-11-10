@@ -177,15 +177,13 @@ while advance(scenario) && fin == 0
         %déplacement du véhicule
         vec_control(j).Position=next_position;
         vec_control(j).Yaw=next_Yaw;
-        
-        if passingCar1.Position==waypoints1(index1+1)
+
+        [next_position1, next_Yaw1, reached1] = motionRectiligne(passingCar1, waypoints1(index1+1,1:2), speed1, Ts);
+        if norm(passingCar1.Position(1:2)-waypoints1(index1+1,1:2))<0.3
             index1=index1+1;
         end
-        [next_position1, next_Yaw1, ~] = motionRectiligne(passingCar1, getNode(waypoints1(index1),TAILLE_CARRE)*L, speed1, Ts);
         passingCar1.Position=next_position1;
-        passingCar1.Yaw=next_Yaw1;
-        disp(passingCar1.Position);
-        
+        passingCar1.Yaw=next_Yaw1;        
 
         
     end
