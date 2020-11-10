@@ -43,9 +43,14 @@ vehicle(scenario,'ClassID',3,'Length',2,'Width',2, 'Position', noeud_obstacle*L,
 % add other vehicles
 
 passingCar1 = vehicle(scenario,'ClassID',1,'Position',[1 1 0]*L);
-waypoints1 = [1 1 0; 4 1 0 ; 4 4 0 ; 4 1 0 ; 1 1 0]*L;
+waypoints1 = [1 1 0; 4 1 0 ; 4 4 0 ; 1 4 0 ; 1 1 0]*L;
 speed1 = 3;
 index1 = 1;
+
+passingCar2 = vehicle(scenario,'ClassID',1,'Position',[1 0 0]*L);
+waypoints2 = [1 0 0; 4 0 0 ; 1 0 0]*L;
+speed2 = 1;
+index2 = 1;
 
 % Controlled vehicles
 vec_control = [car];
@@ -178,13 +183,21 @@ while advance(scenario) && fin == 0
         vec_control(j).Position=next_position;
         vec_control(j).Yaw=next_Yaw;
 
-        [next_position1, next_Yaw1, reached1] = motionRectiligne(passingCar1, waypoints1(index1+1,1:2), speed1, Ts);
+        %Déplacement des véhicules passifs
+        
+        [next_position1, next_Yaw1, ~] = motionRectiligne(passingCar1, waypoints1(index1+1,1:2), speed1, Ts);
         if norm(passingCar1.Position(1:2)-waypoints1(index1+1,1:2))<0.3
-            index1=index1+1;
+            index1=mod(index1,length(waypoints1)-1)+1;
         end
         passingCar1.Position=next_position1;
         passingCar1.Yaw=next_Yaw1;  
 
+        [next_position2, next_Yaw2, ~] = motionRectiligne(passingCar2, waypoints2(index2+1,1:2), speed2, Ts);
+        if norm(passingCar2.Position(1:2)-waypoints2(index2+1,1:2))<0.3
+            index2=mod(index2,length(waypoints2)-1)+1;
+        end
+        passingCar2.Position=next_position2;
+        passingCar2.Yaw=next_Yaw2;  
         
     end
 
