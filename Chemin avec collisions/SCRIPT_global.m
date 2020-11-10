@@ -183,7 +183,7 @@ while advance(scenario) && fin == 0
             index1=index1+1;
         end
         passingCar1.Position=next_position1;
-        passingCar1.Yaw=next_Yaw1;        
+        passingCar1.Yaw=next_Yaw1;  
 
         
     end
