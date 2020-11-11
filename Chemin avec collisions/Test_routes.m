@@ -8,7 +8,7 @@ scenario.SampleTime = Ts;
 car = vehicle(scenario, 'ClassID', 1, 'Position', [0 0 0]);
 vitesse = 2;
 
-waypoints = [1 2 3 4 5 12 11 10 18 17 16 15 8 7 6 13 23 24 21 22 25 26 20 19 11];
+waypoints = [1 2 3 4 5 12 11 10 18 30 29 28 27 17 16 15 8 7 6 13 23 24 21 22 25 26 20 19 11];
 i = 1;
 
 plot(scenario);
