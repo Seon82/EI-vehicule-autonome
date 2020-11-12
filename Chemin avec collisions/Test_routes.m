@@ -11,8 +11,8 @@ DISTANCE_STOP = 10;
 delivery_node = 22;
 delivery_point = vehicle(scenario,'ClassID',2,'Length',2,'Width',2, 'Position', noeuds(delivery_node), 'PlotColor', 'r');
 %Create obstacle
-obstacle_node = 13;
-obstacle = vehicle(scenario,'ClassID',3,'Length',2,'Width',2, 'Position', noeuds(obstacle_node), 'PlotColor', 'k');
+obstacle_coord = (noeuds(6)+noeuds(13))/2;
+obstacle = vehicle(scenario,'ClassID',3,'Length',2,'Width',2, 'Position', obstacle_coord, 'PlotColor', 'k');
 
 waypoints1 = shortestpath(graphe, 1, delivery_node);
 waypoints2 = [3 8 7 2 3 8 7 2];
@@ -41,6 +41,7 @@ while advance(scenario)
         if carStopped(j)==0
             [cars, wp_index] = moveCars(cars,j,waypoints,wp_index,noeuds,CAR_SPEED,Ts);
         end
+        graphe
     end
     
     updatePlots(scenario)
