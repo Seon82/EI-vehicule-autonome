@@ -7,6 +7,7 @@ scenario.SampleTime = Ts;
 
 CAR_SPEED = [2 3]; %Initial speeds, one integer = one speed
 DISTANCE_STOP = 10;
+CONDITIONS_RADIO_DEGRADEES = 0;
 %Create delivery point
 delivery_node = 22;
 delivery_point = vehicle(scenario,'ClassID',2,'Length',2,'Width',2, 'Position', noeuds(delivery_node), 'PlotColor', 'r');
@@ -17,8 +18,11 @@ obstacle = vehicle(scenario,'ClassID',3,'Length',2,'Width',2, 'Position', obstac
 waypoints1 = shortestpath(graphe, 1, delivery_node);
 waypoints = {waypoints1 [5]};
 
-
-
+if CONDITIONS_RADIO_DEGRADEES == 1
+    for i=1:nb_cars
+        graphes{i} = graphe;
+    end
+end
 
 %Create cars
 cars = createCars(scenario, waypoints, noeuds);
@@ -35,6 +39,9 @@ timeout_threshold = zeros(1,nb_cars);
 plot(scenario);
 while advance(scenario)
     for j=1:nb_cars
+        if CONDITIONS_RADIO_DEGRADEES==1
+            graphe = graphes{j};
+        end
         distanceMat = get_distance(cars, obstacle, 10, 100);
         flag=get_flag(j,nb_cars,distanceMat,DISTANCE_STOP);
                 
