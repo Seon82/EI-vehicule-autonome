@@ -30,17 +30,19 @@ plot(scenario);
 while advance(scenario)
     for j=1:length(cars)
         distanceMat = get_distance(cars, obstacle, 10, 100);
-        flag=get_flag(j,distanceMat,5);
+        flag=get_flag(j,length(cars),distanceMat,5);
         carStopped=0;
         
-        if flag == 1
-            if flags(j)==1 %If initial collision imminent then stop
+        if flag > 0
+            if flags(j)>0 %If initial collision imminent then stop
                 wait=0;
                 carStopped=1;
             elseif wait==10 %If collision but timeout expired then go back
                 %compute new path
                 [new_index, new_waypoints, updated_graph] = compute_new_path(wp_index(j), waypoints{j}, graphe);
-                graphe = updated_graph; % information globale
+                if flag == 1 % on ne supprime pas l'arête du graphe si collision avec véhicule
+                    graphe = updated_graph; % information globale
+                end
                 waypoints{j} = new_waypoints;
                 wp_index(j) = new_index;
                 wait=0;
