@@ -11,12 +11,12 @@ DISTANCE_STOP = 10;
 delivery_node = 22;
 delivery_point = vehicle(scenario,'ClassID',2,'Length',2,'Width',2, 'Position', noeuds(delivery_node), 'PlotColor', 'r');
 %Create obstacle
-% obstacle_node = 13;
-% obstacle = vehicle(scenario,'ClassID',3,'Length',2,'Width',2, 'Position', noeuds(obstacle_node), 'PlotColor', 'k');
-obstacle = [];
-% waypoints1 = shortestpath(graphe, 1, delivery_node);
-waypoints1 = [1];
+
+obstacle_coord = (noeuds(6)+noeuds(13))/2;
+obstacle = vehicle(scenario,'ClassID',3,'Length',2,'Width',2, 'Position', obstacle_coord, 'PlotColor', 'k');
+waypoints1 = shortestpath(graphe, 1, delivery_node);
 waypoints = {waypoints1 [5]};
+
 
 
 
@@ -24,7 +24,7 @@ waypoints = {waypoints1 [5]};
 cars = createCars(scenario, waypoints, noeuds);
 nb_cars = length(cars);
 vehicules_livraison = zeros(1, nb_cars);
-% vehicules_livraison(1) = 1;
+vehicules_livraison(1) = 1;
 package_delivered = zeros(1, nb_cars);
 wp_index = zeros(1,nb_cars)+1;
 previousFlags = zeros(1,nb_cars);
