@@ -20,22 +20,22 @@ waypoints = {waypoints1 waypoints2};
 
 %Create cars
 cars = createCars(scenario, waypoints, noeuds);
-
-wp_index = zeros(1,length(cars))+1;
+nb_cars = length(cars);
 
 package_delivered=0;
-previousFlags = zeros(1, length(cars));
-carStopped = zeros(1, length(cars));
-timeout = zeros(1, length(cars));
-timeout_threshold = [50 100];
+wp_index = zeros(1,nb_cars)+1;
+previousFlags = zeros(1,nb_cars);
+carStopped = zeros(1,nb_cars);
+timeout = zeros(1,nb_cars);
+timeout_threshold = zeros(1,nb_cars);
 
 plot(scenario);
 while advance(scenario)
-    for j=1:length(cars)
+    for j=1:nb_cars
         distanceMat = get_distance(cars, obstacle, 10, 100);
-        flag=get_flag(j,length(cars),distanceMat,5);
+        flag=get_flag(j,nb_cars,distanceMat,5);
                 
-        [timeout, graphe, carStopped, previousFlags, wp_index, waypoints] = collisionHandler(...
+        [timeout, graphe, carStopped, previousFlags, wp_index, waypoints, timeout_threshold] = collisionHandler(...
             flag, j, previousFlags, carStopped, timeout, timeout_threshold, wp_index, waypoints, graphe);
 
         if carStopped(j)==0

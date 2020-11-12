@@ -1,9 +1,10 @@
-function [timeout, graphe, carStopped, previousFlags, wp_index, waypoints] = collisionHandler(flag, j, previousFlags, carStopped, timeout, timeout_threshold, wp_index, waypoints, graphe)
+function [timeout, graphe, carStopped, previousFlags, wp_index, waypoints, timeout_threshold] = collisionHandler(flag, j, previousFlags, carStopped, timeout, timeout_threshold, wp_index, waypoints, graphe)
 
 if flag > 0
     if previousFlags(j)==0 %If initial collision imminent then stop
         timeout(j)=0;
         carStopped(j)=1;
+        timeout_threshold(j)=randi(50)+50;
     elseif timeout(j)==timeout_threshold(j) %If collision but timeout expired then go back
         %compute new path
         [new_index, new_waypoints, updated_graph] = compute_new_path(wp_index(j), waypoints{j}, graphe);
@@ -18,7 +19,8 @@ if flag > 0
         timeout(j)=timeout(j)+1;
         carStopped(j)=1;
     end
-    previousFlags(j) = flag;
 end
+
+previousFlags(j) = flag;
 
 end
