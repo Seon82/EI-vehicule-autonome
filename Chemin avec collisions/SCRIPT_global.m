@@ -63,11 +63,9 @@ waypoints2 = [1 0 0; 4 0 0 ; 1 0 0]*L;
 index2 = 1;
 
 % Controlled vehicles
-vec_control = [egoCar];
-vec_control_degraded = [passingCar2];
+vec_control = [egoCar,passingCar1, passingCar2];
+%vec_control_degraded = [passingCar2];
 
-% Create all the sensors
-sensor = createSensorCamera(scenario,Ts);
 
 %Create one variable to aggregate all detections into a structure for later use
 allData = struct('Time', {}, 'ActorPoses', {}, 'ObjectDetections', {}, 'LaneDetections', {});
@@ -84,30 +82,34 @@ iteration=1;
 timeout = 0;
 
 while advance(scenario) && fin == 0
-    % Sensor - local information
-    % Generate the target poses of all actors relative to a certain vehicle
-    poses = targetPoses(vec_control);
-    %posesDegraded = targetPosses(vec_control_degraded);
-    time  = scenario.SimulationTime;
     
-    % Generate detections for the sensor
-    laneDetections = []; %not used for now
-    [objectDetections, numObjects, isValidTime] = sensor(poses, time);
-    objectDetections = objectDetections(1:numObjects);
-    
-    % Aggregate all detections into a structure for later use
-    if isValidTime
+    %flag_coli = detectCollision(vec_control, objectDetections, k);      
+    for j=1:length(vec_control) %Loop with the number of controlled vehicles (with sensor)
+        
+        % Sensor - local information
+        % Generate the target poses of all actors relative to a certain vehicle
+        poses = targetPoses(vec_control(j));
+        %posesDegraded = targetPosses(vec_control_degraded);
+        time  = scenario.SimulationTime;
+        
+        % Create all the sensors
+        
+        sensor = createSensorCamera(scenario,Ts);
+        
+        % Generate detections for the sensor
+        laneDetections = []; %not used for now
+        [objectDetections, numObjects, isValidTime] = sensor(poses, time);
+        objectDetections = objectDetections(1:numObjects);
+        
+        % Aggregate all detections into a structure for later use
         allData(end + 1) = struct( ...
             'Time',       scenario.SimulationTime, ...
             'ActorPoses', actorPoses(scenario), ...
             'ObjectDetections', {objectDetections}, ...
             'LaneDetections',   {laneDetections});
-    end
-    
-    % Get object detection informations
-    
-    %flag_coli = detectCollision(vec_control, objectDetections, k);      
-    for j=1:length(vec_control) %Loop with the number of controlled vehicles (with sensor)
+        
+        % Get object detection informations
+        
         for i=1:length(objectDetections) %Loop with the number of detected objects
             if objectDetections{i}.ObjectClassID~=2 %pas une livraison
                 [relative_dist(j,i,iteration),flag_coli(j,i,iteration)] = distancesensor(objectDetections{i});
