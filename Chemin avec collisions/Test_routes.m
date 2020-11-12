@@ -6,7 +6,7 @@ Ts = 0.1;
 scenario.SampleTime = Ts;
 
 CAR_SPEED = [2 3]; %Initial speeds, one integer = one speed
-
+DISTANCE_STOP = 10;
 %Create delivery point
 delivery_node = 22;
 delivery_point = vehicle(scenario,'ClassID',2,'Length',2,'Width',2, 'Position', noeuds(delivery_node), 'PlotColor', 'r');
@@ -33,7 +33,7 @@ plot(scenario);
 while advance(scenario)
     for j=1:nb_cars
         distanceMat = get_distance(cars, obstacle, 10, 100);
-        flag=get_flag(j,nb_cars,distanceMat,5);
+        flag=get_flag(j,nb_cars,distanceMat,DISTANCE_STOP);
                 
         [timeout, graphe, carStopped, previousFlags, wp_index, waypoints, timeout_threshold] = collisionHandler(...
             flag, j, previousFlags, carStopped, timeout, timeout_threshold, wp_index, waypoints, graphe);
