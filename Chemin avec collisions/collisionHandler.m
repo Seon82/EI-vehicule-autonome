@@ -4,7 +4,7 @@ if flag > 0
     if previousFlags(j)==0 %If initial collision imminent then stop
         timeout(j)=0;
         carStopped(j)=1;
-        timeout_threshold(j)=randi(50)+50;
+        timeout_threshold(j)=randi(10)+10;
     elseif timeout(j)==timeout_threshold(j) %If collision but timeout expired then go back
         %compute new path
         [new_index, new_waypoints, updated_graph] = compute_new_path(wp_index(j), waypoints{j}, graphe);

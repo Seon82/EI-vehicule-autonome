@@ -11,18 +11,21 @@ DISTANCE_STOP = 10;
 delivery_node = 22;
 delivery_point = vehicle(scenario,'ClassID',2,'Length',2,'Width',2, 'Position', noeuds(delivery_node), 'PlotColor', 'r');
 %Create obstacle
+
 obstacle_coord = (noeuds(6)+noeuds(13))/2;
 obstacle = vehicle(scenario,'ClassID',3,'Length',2,'Width',2, 'Position', obstacle_coord, 'PlotColor', 'k');
-
 waypoints1 = shortestpath(graphe, 1, delivery_node);
-waypoints2 = [3 8 7 2 3 8 7 2];
-waypoints = {waypoints1 waypoints2};
+waypoints = {waypoints1 [5]};
+
+
+
 
 %Create cars
 cars = createCars(scenario, waypoints, noeuds);
 nb_cars = length(cars);
-
-package_delivered=0;
+vehicules_livraison = zeros(1, nb_cars);
+vehicules_livraison(1) = 1;
+package_delivered = zeros(1, nb_cars);
 wp_index = zeros(1,nb_cars)+1;
 previousFlags = zeros(1,nb_cars);
 carStopped = zeros(1,nb_cars);
@@ -39,6 +42,10 @@ while advance(scenario)
             flag, j, previousFlags, carStopped, timeout, timeout_threshold, wp_index, waypoints, graphe);
 
         if carStopped(j)==0
+            if wp_index(j) > length(waypoints{j})
+               [waypoints{j}, package_delivered(j)] = get_new_waypoints(j, waypoints{j}, vehicules_livraison, package_delivered(j), graphe);
+               wp_index(j) = 1;
+            end
             [cars, wp_index] = moveCars(cars,j,waypoints,wp_index,noeuds,CAR_SPEED,Ts);
         end
     end
