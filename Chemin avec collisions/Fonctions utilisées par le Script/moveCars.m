@@ -1,6 +1,6 @@
 function [cars, wp_index] = moveCars(cars,j,waypoints,wp_index,noeuds,CAR_SPEED,Ts)
 
-waypoint=waypoints{1,j};
+waypoint=waypoints{j};
 [next_Position, next_Yaw, reached] = motionRectiligne(cars(j),noeuds(waypoint(wp_index(j))),CAR_SPEED(j),Ts);
 cars(j).Yaw = next_Yaw;
 cars(j).Position = next_Position;
