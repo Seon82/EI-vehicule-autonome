@@ -9,7 +9,6 @@ CAR_SPEED = [2 2 3]; %Initial speeds, one integer = one speed
 DISTANCE_STOP = 10;
 CONDITIONS_RADIO_DEGRADEES = 0;
 
-
 % Create delivery points
 delivery_nodes = [22, 11];
 generate_delivery = @(node) vehicle(scenario,'ClassID',2,'Length',2,'Width',2, 'Position', noeuds(node), 'PlotColor', 'r');
@@ -23,6 +22,7 @@ waypoints = {waypoints1 waypoints2 [5]};
 % Create cars
 cars = createCars(scenario, waypoints, noeuds);
 nb_cars = length(cars);
+
 
 % Setup deliveries
 vehicules_livraison = zeros(1, nb_cars);
