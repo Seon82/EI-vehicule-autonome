@@ -1,10 +1,10 @@
-function [distance_mat, collision_mat] = get_collisions(cars, alpha, range, distance_alerte)
-distance_mat = zeros(length(cars)) + inf;
-collision_mat = zeros(length(cars));
-for i=1:length(cars)
-    A = cars(i).Position(1:2);
-    B = range * [cosd(car.Yaw - alpha), sind(car.Yaw - alpha)];
-    C = range * [cosd(car.Yaw + alpha), sind(car.Yaw + alpha)];
+function [distance_mat] = get_distance(actors, alpha, range)
+distance_mat = zeros(length(actors)) + inf;
+for i=1:length(actors)
+    car = actors(i);
+    A = car.Position(1:2);
+    B = range * [cosd(car.Yaw - alpha), sind(car.Yaw - alpha)] + A;
+    C = range * [cosd(car.Yaw + alpha), sind(car.Yaw + alpha)] + A;
     % Calcul des vecteurs
     v0 = C - A;
     v1 = B - A;
@@ -12,11 +12,10 @@ for i=1:length(cars)
     dot00 = dot(v0, v0);
     dot01 = dot(v0, v1);
     dot11 = dot(v1, v1);
-    % Calcul des coordonnées 
-    for j=1:length(cars)
+    % On vérifie si un des autres objects est dans le triangle de détection
+    for j=1:length(actors)
         if i ~= j
-            car = cars(i);
-            other_car = cars(j);
+            other_car = actors(j);
             P = other_car.Position(1:2);
             v2 = P - A;
             dot02 = dot(v0, v2);
@@ -27,7 +26,6 @@ for i=1:length(cars)
             v = (dot00 * dot12 - dot01 * dot02) * invDenom;
             if (u >= 0) && (v >= 0) && (u + v < 1) % Si P est dans le triangle ABC
                distance_mat(i,j) = norm(car.Position - other_car.Position);
-               collision_mat(i,j) = (distance_mat(i,j) > distance_alerte);
             end
         end
     end
