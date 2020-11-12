@@ -8,15 +8,15 @@ scenario.SampleTime = Ts;
 CAR_SPEED = [2 3]; %Initial speeds, one integer = one speed
 DISTANCE_STOP = 10;
 CONDITIONS_RADIO_DEGRADEES = 0;
+
 %Create delivery point
 delivery_node = 22;
 delivery_point = vehicle(scenario,'ClassID',2,'Length',2,'Width',2, 'Position', noeuds(delivery_node), 'PlotColor', 'r');
 %Create obstacle
-
 obstacle_coord = (noeuds(6)+noeuds(13))/2;
 obstacle = vehicle(scenario,'ClassID',3,'Length',2,'Width',2, 'Position', obstacle_coord, 'PlotColor', 'k');
-waypoints1 = shortestpath(graphe, 1, delivery_node);
-waypoints = {waypoints1 [5]};
+
+waypoints = {shortestpath(graphe, 1, delivery_node) [5]};
 
 if CONDITIONS_RADIO_DEGRADEES == 1
     for i=1:nb_cars
@@ -27,6 +27,7 @@ end
 %Create cars
 cars = createCars(scenario, waypoints, noeuds);
 nb_cars = length(cars);
+
 vehicules_livraison = zeros(1, nb_cars);
 vehicules_livraison(1) = 1;
 package_delivered = zeros(1, nb_cars);
