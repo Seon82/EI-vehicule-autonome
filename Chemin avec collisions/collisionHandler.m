@@ -18,7 +18,6 @@ if flag > 0
         timeout(j)=timeout(j)+1;
         carStopped(j)=1;
     end
-    previousFlags(j) = flag;
 end
-
+previousFlags(j) = flag;
 end

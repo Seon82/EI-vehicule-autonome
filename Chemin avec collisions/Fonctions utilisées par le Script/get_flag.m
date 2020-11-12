@@ -4,10 +4,9 @@ function flag = get_flag(car_index, num_cars, distance_mat, distance_seuil)
    index = find(distance_mat(car_index,:)<=distance_seuil, 1);
    if isempty(index)==1
        flag = 0;
-   elseif index >= num_cars
-    flag = 1;
+   elseif index > num_cars
+       flag = 1;
    else
        flag = 2;
    end
-
 end
