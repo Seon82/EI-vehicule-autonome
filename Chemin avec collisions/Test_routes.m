@@ -58,7 +58,6 @@ while advance(scenario)
         end
     end
     
-    iteration=iteration+1;
     updatePlots(scenario)
     pause(0.01)
 end
