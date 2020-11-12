@@ -41,7 +41,6 @@ while advance(scenario)
         if carStopped(j)==0
             [cars, wp_index] = moveCars(cars,j,waypoints,wp_index,noeuds,CAR_SPEED,Ts);
         end
-        graphe
     end
     
     updatePlots(scenario)
