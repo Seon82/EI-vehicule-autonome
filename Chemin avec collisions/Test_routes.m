@@ -31,12 +31,13 @@ while advance(scenario)
     for j=1:length(cars)
         distanceMat = get_distance(cars, obstacle, 10, 100);
         flags(j,iteration)=get_flag(j,distanceMat,5);
+        carStopped=0;
         
         if flags(j,iteration)==1
 
             if iteration<2 || flags(j,iteration-1)==0 %If initial collision imminent then stop
                 wait=0;
-                CAR_SPEED(j)=0;
+                carStopped=1;
             elseif wait==10 %If collision but timeout expired then go back
                 %compute new path
                 [new_index, new_waypoints, updated_graph] = compute_new_path(wp_index(j), waypoints{j}, graphe);
@@ -44,13 +45,15 @@ while advance(scenario)
                 waypoints{j} = new_waypoints;
                 wp_index(j) = new_index;
                 wait=0;
+                carStopped=0;
             else %If timeout not expired then stop
                 wait=wait+1;
-                CAR_SPEED(j)=0;
+                carStopped=1;
             end
         end
-        
-        [cars, wp_index] = moveCars(cars,j,waypoints,wp_index,noeuds,CAR_SPEED,Ts);
+        if carStopped==0
+            [cars, wp_index] = moveCars(cars,j,waypoints,wp_index,noeuds,CAR_SPEED,Ts);
+        end
     end
     
     iteration=iteration+1;
