@@ -5,7 +5,7 @@ close all;
 Ts = 0.1;
 scenario.SampleTime = Ts;
 
-CAR_SPEED = [2 2]; %Initial speeds, one integer = one speed
+CAR_SPEED = [2 3]; %Initial speeds, one integer = one speed
 
 %Create delivery point
 delivery_node = 22;
@@ -24,36 +24,21 @@ cars = createCars(scenario, waypoints, noeuds);
 wp_index = zeros(1,length(cars))+1;
 
 package_delivered=0;
-flags = zeros(1, length(cars));
+previousFlags = zeros(1, length(cars));
+carStopped = zeros(1, length(cars));
+timeout = zeros(1, length(cars));
+timeout_threshold = [50 100];
 
 plot(scenario);
 while advance(scenario)
     for j=1:length(cars)
         distanceMat = get_distance(cars, obstacle, 10, 100);
         flag=get_flag(j,length(cars),distanceMat,5);
-        carStopped=0;
-        
-        if flag > 0
-            if flags(j)>0 %If initial collision imminent then stop
-                wait=0;
-                carStopped=1;
-            elseif wait==100 %If collision but timeout expired then go back
-                %compute new path
-                [new_index, new_waypoints, updated_graph] = compute_new_path(wp_index(j), waypoints{j}, graphe);
-                if flag == 1 % on ne supprime pas l'arête du graphe si collision avec véhicule
-                    graphe = updated_graph; % information globale
-                end
-                waypoints{j} = new_waypoints;
-                wp_index(j) = new_index;
-                wait=0;
-                carStopped=0;
-            else %If timeout not expired then stop
-                wait=wait+1;
-                carStopped=1;
-            end
-            flags(j) = flag;
-        end
-        if carStopped==0
+                
+        [timeout, graphe, carStopped, previousFlags, wp_index, waypoints] = collisionHandler(...
+            flag, j, previousFlags, carStopped, timeout, timeout_threshold, wp_index, waypoints, graphe);
+
+        if carStopped(j)==0
             [cars, wp_index] = moveCars(cars,j,waypoints,wp_index,noeuds,CAR_SPEED,Ts);
         end
     end
