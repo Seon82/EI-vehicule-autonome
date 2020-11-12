@@ -5,7 +5,7 @@ close all;
 Ts = 0.1;
 scenario.SampleTime = Ts;
 
-CAR_SPEED = [2 1]; %Initial speeds, one integer = one speed
+CAR_SPEED = [2 2]; %Initial speeds, one integer = one speed
 
 %Create delivery point
 delivery_node = 22;
@@ -38,7 +38,7 @@ while advance(scenario)
             if iteration<2 || flags(j,iteration-1)==0 %If initial collision imminent then stop
                 wait=0;
                 carStopped=1;
-            elseif wait==10 %If collision but timeout expired then go back
+            elseif wait==100 %If collision but timeout expired then go back
                 %compute new path
                 [new_index, new_waypoints, updated_graph] = compute_new_path(wp_index(j), waypoints{j}, graphe);
                 graphe = updated_graph; % information globale
