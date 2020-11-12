@@ -33,11 +33,16 @@ while advance(scenario)
         flags(j,iteration)=get_flag(j,distanceMat,5);
         
         if flags(j,iteration)==1
+
             if iteration<2 || flags(j,iteration-1)==0 %If initial collision imminent then stop
                 wait=0;
                 CAR_SPEED(j)=0;
             elseif wait==10 %If collision but timeout expired then go back
                 %compute new path
+                [new_index, new_waypoints, updated_graph] = compute_new_path(wp_index(j), waypoints{j}, graphe);
+                graphe = updated_graph; % information globale
+                waypoints{j} = new_waypoints;
+                wp_index(j) = new_index;
                 wait=0;
             else %If timeout not expired then stop
                 wait=wait+1;
