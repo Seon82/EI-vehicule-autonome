@@ -27,6 +27,11 @@ nb_cars = length(cars);
 % Setup deliveries
 vehicules_livraison = zeros(1, nb_cars);
 vehicules_livraison(1:2) = 1;
+for i=1:nb_cars
+    if vehicules_livraison(i)==1
+        cars(i).PlotColor = '#edb120';
+    end
+end
 package_delivered = zeros(1, nb_cars);
 
 % Setup obstacles
